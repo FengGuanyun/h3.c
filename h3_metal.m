@@ -39,9 +39,12 @@ int h3_metal_probe(h3_device_info *info, char *error, size_t error_size) {
                 break;
             }
         }
-        if (@available(macOS 26.0, *)) {
-            info->metal4 = [device supportsFamily:MTLGPUFamilyMetal4] ? 1 : 0;
-        }
+        /* MTLGPUFamilyMetal4 is 5002 and only the macOS 26 SDK declares it.
+         * Asking for the numeric family keeps this file building against
+         * older SDKs, the way the loop above already does, and still reports
+         * Metal 4 when the running system has it: supportsFamily: answers NO
+         * for a family the system does not know. */
+        info->metal4 = [device supportsFamily:(MTLGPUFamily)5002] ? 1 : 0;
     }
     return 1;
 }
